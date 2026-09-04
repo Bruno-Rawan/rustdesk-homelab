@@ -1,0 +1,24 @@
+# RustDesk persistent data
+data/
+
+# Private keys
+id_ed25519
+*.key
+*.pem
+
+# Environment files
+.env
+.env.*
+
+# Credentials / secrets
+*credentials*
+*secret*
+
+# Logs
+*.log
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
