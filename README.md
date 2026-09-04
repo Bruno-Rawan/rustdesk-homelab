@@ -312,7 +312,7 @@ Both clients successfully registered with the server and a remote session was es
 
 The following test was performed with the notebook connected to an external network while the Windows VM remained inside the homelab LAN.
 
-![External RustDesk connection test](images/external-connection.png)
+![External RustDesk connection test](images/rustdesk-conect.png)
 
 A second test was performed with the notebook connected to an external Internet connection instead of the homelab LAN.
 
