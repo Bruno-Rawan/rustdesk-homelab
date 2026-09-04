@@ -150,6 +150,11 @@ docker logs -f hbbs
 ```bash
 docker logs -f hbbr
 ```
+### Running Containers
+
+The RustDesk `hbbs` and `hbbr` services running on the Ubuntu Server:
+
+![RustDesk Docker containers running](images/docker-containers.png)
 
 ## Persistent Data
 
