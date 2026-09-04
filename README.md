@@ -1,3 +1,15 @@
+## Project Status
+
+✅ Self-hosted RustDesk Server deployed and operational.
+
+Validated scenarios:
+
+- Local network connectivity
+- External network connectivity
+- Dynamic DNS resolution
+- NAT / Port Forwarding
+- Automatic service recovery after reboot
+
 # Self-Hosted RustDesk Homelab
 
 A self-hosted remote access infrastructure built with **RustDesk Server OSS**, **Docker**, and **Ubuntu Server**, running inside a **Proxmox VE homelab**.
@@ -52,6 +64,14 @@ flowchart TD
 * No-IP Dynamic DNS
 * NAT / Port Forwarding
 * OpenSSH
+
+## Documentation
+
+Detailed documentation about the environment:
+
+- [Network Architecture](docs/networking.md)
+- [Security Considerations](docs/security.md)
+- [Troubleshooting Guide](docs/troubleshooting.md)
 
 ## Infrastructure
 
