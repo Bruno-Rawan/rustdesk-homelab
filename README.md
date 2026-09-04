@@ -18,40 +18,7 @@ Validated scenarios:
 
 ## Architecture
 
-```mermaid
-flowchart TD
-    EXT[External RustDesk Client]
-
-    DDNS[No-IP Dynamic DNS]
-
-    ROUTER[Router / Public IPv4<br/>NAT & Port Forwarding]
-
-    subgraph PROXMOX[Proxmox VE]
-        subgraph VM[srv-rustdesk-01]
-            UBUNTU[Ubuntu Server<br/>192.168.1.202]
-
-            subgraph DOCKER[Docker]
-                HBBS[hbbs<br/>ID / Rendezvous Server]
-                HBBR[hbbr<br/>Relay Server]
-            end
-
-            UBUNTU --> HBBS
-            UBUNTU --> HBBR
-        end
-    end
-
-    LAN[LAN RustDesk Client<br/>Windows VM]
-
-    EXT -->|Resolve hostname| DDNS
-    DDNS -->|Public IPv4| ROUTER
-    ROUTER -->|TCP/UDP 21115-21117| UBUNTU
-
-    LAN --> HBBS
-    EXT --> HBBS
-
-    LAN -. Relay when required .-> HBBR
-    EXT -. Relay when required .-> HBBR
-```
+![Self-Hosted RustDesk Homelab Architecture](./images/architecture.png)
 
 ## Tech Stack
 
