@@ -176,7 +176,7 @@ docker logs -f hbbr
 
 The RustDesk `hbbs` and `hbbr` services running on the Ubuntu Server:
 
-![Docker Compose Status](./images/docker-compose-ps.jpg)
+![Docker Compose Status](./images/docker-containers.jpg)
 
 ## Persistent Data
 
