@@ -1,20 +1,20 @@
-## Project Status
-
-✅ Self-hosted RustDesk Server deployed and operational.
-
-Validated scenarios:
-
-- Local network connectivity
-- External network connectivity
-- Dynamic DNS resolution
-- NAT / Port Forwarding
-- Automatic service recovery after reboot
-
 # Self-Hosted RustDesk Homelab
 
 A self-hosted remote access infrastructure built with **RustDesk Server OSS**, **Docker**, and **Ubuntu Server**, running inside a **Proxmox VE homelab**.
 
-The environment was deployed and tested both inside the local network and from an external network using **Dynamic DNS**, **NAT/Port Forwarding**, and a dedicated host firewall.
+The environment was deployed and validated both inside the local network and from an external network using **Dynamic DNS**, **NAT / Port Forwarding**, and a dedicated host firewall.
+
+## Project Status
+
+✅ **Self-hosted RustDesk Server deployed and operational.**
+
+Validated scenarios:
+
+* Local network connectivity
+* External network connectivity
+* Dynamic DNS resolution
+* NAT / Port Forwarding
+* Automatic service recovery after reboot
 
 ## Architecture
 
@@ -69,13 +69,13 @@ flowchart TD
 
 Detailed documentation about the environment:
 
-- [Network Architecture](docs/networking.md)
-- [Security Considerations](docs/security.md)
-- [Troubleshooting Guide](docs/troubleshooting.md)
+* [Network Architecture](docs/networking.md)
+* [Security Considerations](docs/security.md)
+* [Troubleshooting Guide](docs/troubleshooting.md)
 
 ## Infrastructure
 
-The RustDesk server runs on a dedicated Ubuntu Server virtual machine hosted by Proxmox VE.
+The RustDesk server runs on a dedicated Ubuntu Server virtual machine hosted on Proxmox VE.
 
 | Resource | Configuration     |
 | -------- | ----------------- |
@@ -111,14 +111,15 @@ Client A ──────► hbbs ◄────── Client B
              Connection setup
                     │
                     ▼
-        Direct connection when possible
+          Direct connection
+            when possible
 ```
 
 If a direct connection cannot be established:
 
 ```text
 Client A ──────► hbbr ──────► Client B
-                 Relay
+                  Relay
 ```
 
 ## Docker Deployment
@@ -170,11 +171,12 @@ docker logs -f hbbs
 ```bash
 docker logs -f hbbr
 ```
+
 ### Running Containers
 
 The RustDesk `hbbs` and `hbbr` services running on the Ubuntu Server:
 
-![RustDesk Docker containers running](images/docker-containers.jpg)
+![Docker Compose Status](./images/docker-compose-ps.jpg)
 
 ## Persistent Data
 
@@ -193,9 +195,11 @@ id_ed25519       -> PRIVATE KEY - DO NOT COMMIT
 id_ed25519.pub   -> Public key used by RustDesk clients
 ```
 
+The `data/` directory is excluded from version control through `.gitignore`.
+
 ## Network Configuration
 
-Only the ports required by the RustDesk Server OSS deployment are exposed.
+Only the ports required by the current RustDesk Server OSS deployment are exposed.
 
 | Port  | Protocol | Purpose                     |
 | ----- | -------- | --------------------------- |
@@ -210,7 +214,7 @@ The router forwards these ports to:
 192.168.1.202
 ```
 
-Architecture:
+Network flow:
 
 ```text
 Internet
@@ -244,16 +248,16 @@ RustDesk Client
 example.ddns.net
       |
       v
-No-IP
+    No-IP
       |
       v
 Current Public IPv4
       |
       v
-Router
+    Router
 ```
 
-The No-IP Dynamic Update Client runs as a systemd service on the Ubuntu server.
+The No-IP Dynamic Update Client runs as a `systemd` service on the Ubuntu Server.
 
 Check its status:
 
@@ -267,9 +271,9 @@ The service is enabled to start automatically during boot.
 
 ## Firewall
 
-UFW is enabled on the Ubuntu server.
+UFW is enabled on the Ubuntu Server.
 
-The RustDesk ports are publicly accessible:
+The following RustDesk ports are allowed:
 
 ```text
 21115/TCP
@@ -278,13 +282,15 @@ The RustDesk ports are publicly accessible:
 21117/TCP
 ```
 
-SSH access is restricted to the internal network.
+SSH access is restricted to the internal network:
 
 ```text
 192.168.1.0/24 -> TCP/22
 ```
 
-This keeps the management interface unavailable directly from the Internet.
+Port `22/TCP` is not forwarded through the Internet router.
+
+This keeps the server management interface unavailable directly from the public Internet.
 
 ## Security Considerations
 
@@ -299,7 +305,7 @@ The deployment follows several basic security practices:
 * Persistent application data separated from containers
 * No unnecessary web-client ports exposed
 
-Sensitive information should never be committed to Git, including:
+Sensitive information must never be committed to Git, including:
 
 ```text
 Private keys
@@ -308,6 +314,10 @@ DDNS credentials
 API tokens
 Public management addresses
 ```
+
+For additional information, see:
+
+[Security Considerations](docs/security.md)
 
 ## Validation
 
@@ -330,17 +340,18 @@ Both clients successfully registered with the server and a remote session was es
 
 ### External Network Test
 
-The following test was performed with the notebook connected to an external network while the Windows VM remained inside the homelab LAN.
+The notebook was disconnected from the homelab LAN and connected through an external Internet connection while the Windows VM remained inside the local network.
 
-![External RustDesk connection test](images/rustdesk-conect.jpg)
-
-A second test was performed with the notebook connected to an external Internet connection instead of the homelab LAN.
+![External RustDesk Connection](./images/rustdesk-conect.jpg)
 
 ```text
 External Notebook
        |
        v
    No-IP DDNS
+       |
+       v
+     Internet
        |
        v
    Public IPv4
@@ -353,7 +364,7 @@ RustDesk Server
 192.168.1.202
        |
        v
-Windows VM
+   Windows VM
 ```
 
 The external client successfully reached the self-hosted `hbbs` server and established a RustDesk remote session with the Windows VM inside the homelab.
@@ -374,60 +385,21 @@ This confirmed that the external RustDesk client was communicating with the self
 
 ## Troubleshooting
 
-### Key Mismatch
+During the deployment, real configuration and connectivity issues were documented.
 
-During the initial client configuration, one RustDesk client returned a key mismatch error.
+Examples include:
 
-#### Cause
+* RustDesk `Key mismatch`
+* Docker Compose configuration file not found
+* No-IP DUC installed but inactive
+* External connection verification
+* Listening port validation
+* Firewall troubleshooting
+* DNS troubleshooting
 
-The client was configured with a public key that did not match the key generated by the current `hbbs` server.
+The complete troubleshooting guide is available here:
 
-#### Verification
-
-The correct public key can be checked on the server:
-
-```bash
-cat /opt/rustdesk/data/id_ed25519.pub
-```
-
-#### Solution
-
-Both RustDesk clients were configured using the same public key generated by the self-hosted server.
-
----
-
-### Docker Compose Configuration Not Found
-
-Running:
-
-```bash
-docker compose ps
-```
-
-outside the RustDesk project directory returned:
-
-```text
-no configuration file provided: not found
-```
-
-#### Cause
-
-Docker Compose searches for the Compose configuration file in the current working directory.
-
-#### Solution
-
-Change to the project directory:
-
-```bash
-cd /opt/rustdesk
-docker compose ps
-```
-
-Or explicitly specify the file:
-
-```bash
-docker compose -f /opt/rustdesk/compose.yml ps
-```
+[Troubleshooting Guide](docs/troubleshooting.md)
 
 ## Service Recovery Test
 
@@ -441,25 +413,26 @@ After reboot:
 * No-IP DUC started automatically
 * Dynamic DNS resolution continued working
 
-This validated that the basic remote access infrastructure does not require manual service startup after a reboot.
+This validated that the remote access infrastructure does not require manual service startup after a reboot.
 
 ## Repository Structure
 
 ```text
 rustdesk-homelab/
-|
+│
 ├── README.md
 ├── compose.yml
 ├── .gitignore
-|
+├── LICENSE
+│
 ├── docs/
-|   ├── networking.md
-|   ├── security.md
-|   └── troubleshooting.md
-|
+│   ├── networking.md
+│   ├── security.md
+│   └── troubleshooting.md
+│
 └── images/
-    ├── docker-containers.png
-    └── external-test.png
+    ├── docker-compose-ps.jpg
+    └── rustdesk-conect.jpg
 ```
 
 ## Roadmap
@@ -492,10 +465,16 @@ This project provided practical experience with:
 * NAT and port forwarding
 * Dynamic DNS
 * Linux firewall configuration
-* systemd services
+* `systemd` services
 * Remote access infrastructure
 * Network troubleshooting
 * Service validation using Linux networking tools
+
+## License
+
+The infrastructure configuration and documentation in this repository are provided under the license included in the [`LICENSE`](LICENSE) file.
+
+RustDesk is a separate open-source project and is distributed under its own license.
 
 ## Disclaimer
 
